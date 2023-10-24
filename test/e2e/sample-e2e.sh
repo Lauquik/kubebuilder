@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2018 The Kubernetes Authors.
+# Copyright 2019 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,4 +23,13 @@ export KIND_CLUSTER="kind"
 create_cluster ${KIND_K8S_VERSION}
 trap delete_cluster EXIT
 
-test_cluster
+KUSTOMIZATION_FILE_PATH="$(dirname "$0")/../../testdata/project-v4/config/default/kustomization.yaml"
+
+sed -i '25s/^#//' $KUSTOMIZATION_FILE_PATH
+sed -i '27s/^#//' $KUSTOMIZATION_FILE_PATH
+sed -i '42s/^#//' $KUSTOMIZATION_FILE_PATH
+sed -i '46,143s/^#//' $KUSTOMIZATION_FILE_PATH
+
+cd $(dirname "$0")/../../testdata/project-v4
+go get -u ./...
+make test-e2e

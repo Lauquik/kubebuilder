@@ -23,6 +23,7 @@ function test_project {
 
   header_text "Performing tests in dir $1"
   pushd "$(dirname "$0")/../../testdata/$1"
+  rm -rf test/
   go mod tidy
   make test
   popd

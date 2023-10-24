@@ -152,10 +152,15 @@ test-e2e-ci: ## Run the end-to-end tests (used in the CI)`
 
 .PHONY: test-book
 test-book: ## Run the cronjob tutorial's unit tests to make sure we don't break it
-	cd ./docs/book/src/cronjob-tutorial/testdata/project && make test
-	cd ./docs/book/src/component-config-tutorial/testdata/project && make test
-	cd ./docs/book/src/multiversion-tutorial/testdata/project && make test
+	cd ./docs/book/src/cronjob-tutorial/testdata/project && rm -rf test && make test
+	cd ./docs/book/src/component-config-tutorial/testdata/project && rm -rf test && make test
+	cd ./docs/book/src/multiversion-tutorial/testdata/project && rm -rf test && make test
 
 .PHONY: test-license
 test-license:  ## Run the license check
 	./test/check-license.sh
+
+.PHONY: test-e2e-sample
+test-e2e-sample:
+	./test/e2e/sample-e2e.sh
+	
