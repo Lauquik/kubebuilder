@@ -31,6 +31,9 @@ jobs:
       - name: Install e2e tools with setup-envtest
         run: setup-envtest use $tools_k8s_version
 
+      - name: Create kind cluster
+        run: kind create cluster
+        
       - name: Prepare the environment
         run: |
           KUSTOMIZATION_FILE_PATH="testdata/project-v4/config/default/kustomization.yaml"
@@ -38,7 +41,7 @@ jobs:
           sed -i '27s/^#//' $KUSTOMIZATION_FILE_PATH
           sed -i '42s/^#//' $KUSTOMIZATION_FILE_PATH
           sed -i '46,143s/^#//' $KUSTOMIZATION_FILE_PATH
-
+      
       - name: Test
         run: |
           cd testdata/project-v4
