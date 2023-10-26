@@ -21,7 +21,7 @@ jobs:
       - name: Remove pre-installed kustomize
         run: sudo rm -f /usr/local/bin/kustomize
       - name: Run make test for project-v4-with-deploy-image
-        run: cd testdata/project-v4-with-deploy-image && rm -rf test go mod tidy && make all && make test
+        run: cd testdata/project-v4-with-deploy-image && rm -rf test && go mod tidy && make all && make test
       - name: Run make test for project-v4-multigroup-with-deploy-image
         run: cd testdata/project-v4-multigroup-with-deploy-image && rm -rf test && go mod tidy && make all && make test
 
