@@ -22,25 +22,14 @@ jobs:
           go-version: '~1.20'
 
       - name: Install Kind
-        run: |
-          if ! is_installed kind; then
-            header_text "Installing kind to $(go env GOPATH)/bin"
-            go install sigs.k8s.io/kind@v$kind_version
-          fi
+        run: go install sigs.k8s.io/kind@v$kind_version
+  
 
       - name: Install setup-envtest
-        run: |
-          if ! is_installed setup-envtest; then
-            header_text "Installing setup-envtest to $(go env GOPATH)/bin"
-            go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
-          fi
+        run: go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 
       - name: Install e2e tools with setup-envtest
-        run: |
-          if [ -z "$SKIP_FETCH_TOOLS" ]; then
-            header_text "Installing e2e tools with setup-envtest"
-            setup-envtest use $tools_k8s_version
-          fi
+        run: setup-envtest use $tools_k8s_version
 
       - name: Prepare the environment
         run: |
