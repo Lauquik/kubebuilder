@@ -1,31 +1,57 @@
 name: project-v4-sample
 
-# Trigger the workflow on pull requests and direct pushes to any branch
 on:
   push:
   pull_request:
 
 jobs:
   test:
-    name: ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-    # Pull requests from the same repository won't trigger this checks as they were already triggered by the push
-    if: (github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository)
+    name: Run on Ubuntu
+    runs-on: ubuntu-latest
+    env:
+      KIND_K8S_VERSION: "${{ env.KIND_K8S_VERSION || 'v1.28.0' }}"
+      tools_k8s_version: "${{ env.tools_k8s_version || '1.28.0' }}"
+      kind_version: "0.15.0"
     steps:
       - name: Clone the code
         uses: actions/checkout@v4
+
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: "~1.20"
-      # This step is needed as the following one tries to remove
-      # kustomize for each test but has no permission to do so
-      - name: Remove pre-installed kustomize
-        run: sudo rm -f /usr/local/bin/kustomize
-      - name: Perform the test
-        run: make test-e2e-sample
+          go-version: '~1.20'
+
+      - name: Install Kind
+        run: |
+          if ! is_installed kind; then
+            header_text "Installing kind to $(go env GOPATH)/bin"
+            go install sigs.k8s.io/kind@v$kind_version
+          fi
+
+      - name: Install setup-envtest
+        run: |
+          if ! is_installed setup-envtest; then
+            header_text "Installing setup-envtest to $(go env GOPATH)/bin"
+            go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
+          fi
+
+      - name: Install e2e tools with setup-envtest
+        run: |
+          if [ -z "$SKIP_FETCH_TOOLS" ]; then
+            header_text "Installing e2e tools with setup-envtest"
+            setup-envtest use $tools_k8s_version
+          fi
+
+      - name: Prepare the environment
+        run: |
+          KUSTOMIZATION_FILE_PATH=testdata/project-v4/config/default/kustomization.yaml"
+          sed -i '25s/^#//' $KUSTOMIZATION_FILE_PATH
+          sed -i '27s/^#//' $KUSTOMIZATION_FILE_PATH
+          sed -i '42s/^#//' $KUSTOMIZATION_FILE_PATH
+          sed -i '46,143s/^#//' $KUSTOMIZATION_FILE_PATH
+
+      - name: Test
+        run: |
+          cd testdata/project-v4
+          go get -u ./...
+          make test-e2e

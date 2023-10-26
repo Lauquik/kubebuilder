@@ -160,7 +160,4 @@ test-book: ## Run the cronjob tutorial's unit tests to make sure we don't break 
 test-license:  ## Run the license check
 	./test/check-license.sh
 
-.PHONY: test-e2e-sample
-test-e2e-sample:
-	./test/e2e/sample-e2e.sh
 	
