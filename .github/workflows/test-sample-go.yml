@@ -43,4 +43,5 @@ jobs:
         run: |
           cd testdata/project-v4
           go get -u ./...
+          go mod tidy
           make test-e2e
